@@ -27,15 +27,25 @@ class MainActivity : ComponentActivity() {
             "contacts.db"
         ).build()
     }
+
+    // BingChat
+    /**
+     * In this updated code, BingChat have added a check to ensure that the modelClass is assignable from ContactViewModel. If it is, we create and return a ContactViewModel. If it’s not, we throw an IllegalArgumentException. This ensures that our create function correctly overrides the create function from the ViewModelProvider.Factory interface. The @Suppress("UNCHECKED_CAST") annotation is used to suppress the unchecked cast warning. This is safe because we’ve already checked that modelClass is assignable from ContactViewModel
+     * */
     private val viewModel by viewModels<ContactViewModel>(
         factoryProducer = {
             object : ViewModelProvider.Factory {
-                override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-                    return ContactViewModel(db.dao) as T
+                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                    if (modelClass.isAssignableFrom(ContactViewModel::class.java)) {
+                        @Suppress("UNCHECKED_CAST")
+                        return ContactViewModel(db.dao) as T
+                    }
+                    throw IllegalArgumentException("Unknown ViewModel class")
                 }
             }
         }
     )
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
